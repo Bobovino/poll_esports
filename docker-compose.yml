@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: "rabbitmq:3-management-alpine"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  web:
+    build: 
+      context: .
+      dockerfile: dockerfile
+    command: gunicorn --chdir /code poll_esports.wsgi:application --bind 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1
+      - SECRET_KEY=kvq-qetj=cbldh&v!-qx9^bx!yptu6hp=t41gt18a2ol
+      - ALLOWED_HOSTS=*
+    depends_on:
+      - rabbitmq
+
+  celery_worker:
+    build: 
+      context: .
+      dockerfile: dockerfile
+    command: celery -A poll_esports.celery_config worker --loglevel=info
+    depends_on:
+      - web
+      - rabbitmq
+
+  celery_beat:
+    build: 
+      context: .
+      dockerfile: dockerfile
+    command: celery -A poll_esports.celery_config beat --loglevel=info
+    depends_on:
+      - web
+      - rabbitmq
