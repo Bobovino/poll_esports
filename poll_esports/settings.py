@@ -11,19 +11,14 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'kvq-qetj=cbldh&v!-qx9^bx!yptu6hp=t41gt18a2ol'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DJANGO_SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+DEVELOPMENT_MODE = os.environ.get('DEVELOPMENT_MODE', 'False') == 'True'
 
 ALLOWED_HOSTS = []
 
@@ -76,11 +71,14 @@ WSGI_APPLICATION = 'poll_esports.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DATABASE_NAME'),
+        'USER': os.environ.get('DATABASE_USER'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
+        'HOST': os.environ.get('DATABASE_HOST'),
+        'PORT': '5432',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -128,6 +126,6 @@ CELERY_BROKER_URL = 'amqp://guest:guest@rabbitmq:5672//'
 CELERY_BEAT_SCHEDULE = {
     'poll_esports_task': {
         'task': 'polling_app.tasks.poll_esports_task',
-        'schedule': 60.0,  # every minute
+        'schedule': 10.0, 
     },
 }

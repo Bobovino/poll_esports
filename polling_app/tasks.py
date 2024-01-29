@@ -2,8 +2,12 @@ from celery import shared_task
 from mwrogue.esports_client import EsportsClient
 import pandas as pd
 
+
+
 @shared_task
 def poll_esports_task():
+    from .models import RegionsModel
+    
     site = EsportsClient("lol")
 
     response = site.cargo_client.query(
@@ -24,7 +28,11 @@ def poll_esports_task():
     # Log the fetched data
     print(df)
 
-    # And write a CSV
-    df.to_csv("Regions.csv", index=False)
+    for _, record in df.iterrows():
+        RegionsModel.objects.create(region=record['RegionLong'])
 
+    # And write a CSV
+    #df.to_csv("Regions.csv", index=False)
     # time.sleep(2)  
+
+

@@ -9,6 +9,8 @@
 *.pyd
 .Python
 env.py
+.env.local
+.env
 celerybeat-schedule
 docker-compose.yml
 Dockerfile
@@ -16,3 +18,4 @@ dockerfile
 .git
 .gitignore
 .md
+.csv
